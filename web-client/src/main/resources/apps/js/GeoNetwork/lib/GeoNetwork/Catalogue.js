@@ -990,6 +990,36 @@ GeoNetwork.Catalogue = Ext.extend(Ext.util.Observable, {
         var url = service + '?uuid=' + uuid;
         window.open(url, this.windowName, this.windowOption);
     },
+    /**
+     * calls metaviz html with parameters: id * children ids
+     * @param {type} uuid
+     * @param {type} schema
+     * @returns {undefined}
+     */
+    showMetaViz: function(uuid, schema){
+      var pathToMetaViz = this.URL + '/apps/metaviz_detail.html?id=';
+      var service = this.services.mdXMLGet;       
+        // ISO 19139 or ISO profil will be displayed in ISO19139 
+        if (schema === 'iso19139') {
+            service = this.services.mdXMLGet19139;
+        } else if (schema === 'dublin-core') {
+            service = this.services.mdXMLGetDC;
+        } else if (schema === 'fgdc') {
+            service = this.services.mdXMLGetFGDC;
+        } else if (schema === 'iso19115') {
+            service = this.services.mdXMLGet19115; // Force ISO19115 record to 19139
+        }
+        kidsString = "";
+        kids = document.getElementsByClassName("children");
+        for(var i=1;i<kids.length;i++){
+            var formFieldList = kids[i].getElementsByTagName('a');
+            var onclickString = formFieldList[0].getAttribute("onclick");
+            onclickString = onclickString.split("(\'")[1].split("\')")[0];
+            kidsString += onclickString + "+";
+        }
+        var url = pathToMetaViz + service + '?uuid=' + uuid + '&children=' + kidsString;
+        window.open(url, this.windowName, this.windowOption);  
+    },
     /** api: method[metadataXMLShow]
      *  :param uuid: ``String`` uuid of the metadata to dislay
      *

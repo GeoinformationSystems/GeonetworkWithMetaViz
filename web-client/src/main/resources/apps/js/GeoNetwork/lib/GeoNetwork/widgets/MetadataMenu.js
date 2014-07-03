@@ -72,6 +72,7 @@ GeoNetwork.MetadataMenu = Ext.extend(Ext.menu.Menu, {
     viewAction: undefined,
     printAction: undefined,
     viewXMLAction: undefined,
+    viewMetaViz: undefined,
     getMEFAction: undefined,
     ratingWidget: undefined,
     statusStore: undefined,
@@ -236,6 +237,17 @@ GeoNetwork.MetadataMenu = Ext.extend(Ext.menu.Menu, {
             scope: this
         });
         
+        this.viewMetaViz = new Ext.Action({
+            text: OpenLayers.i18n('Show MetaViz'),
+            iconCls: 'xmlIcon',
+            handler: function(){
+                var id = this.record.get('uuid');
+                var schema = this.record.get('schema');
+                this.catalogue.showMetaViz(id, schema);
+            },
+            scope: this
+        });
+        
         this.viewRDFAction = new Ext.Action({
             text: OpenLayers.i18n('saveRdf'),
             //W3C Semantic Web Logo
@@ -325,6 +337,7 @@ GeoNetwork.MetadataMenu = Ext.extend(Ext.menu.Menu, {
         this.add(this.viewAction);
         this.add(this.zoomToAction);
         this.add(this.viewXMLAction);
+        this.add(this.viewMetaViz);
         
         this.add(this.viewRDFAction);
         this.add(this.printAction);

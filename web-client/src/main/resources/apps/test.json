@@ -1,0 +1,177 @@
+{
+  "mapping_ids_uuids": {
+    "paramName": "mapping_ids_uuids",
+    "detail_0": "da165110-88fd-11da-a88f-000d939bc5d8",
+    "lineage_model_0": "model_0",
+    "usage_model_0": "model_1",
+    "usage_dataset_0": "faec3510-f0dd-4eea-b051-771ed23151e9",
+    "usage_model_1": "model_2",
+    "usage_dataset_1": "a88383fa-7657-43b5-a278-b667a83e8418"
+  },
+  "model_data": {
+    "model_0": {
+      "title": "Hydrological Basins in Africa (Sample record, please remove!)",
+      "dateTime": "2007-11-06T12:13:00",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "organisation": "FAO - NRCW",
+      "input_datasets": [],
+      "output_datasets": [
+        "da165110-88fd-11da-a88f-000d939bc5d8"
+      ],
+      "type": "lineage",
+      "paramName": "model_0",
+      "info": ""
+    },
+    "paramName": "models",
+    "model_1": {
+      "title": "CHILD 2 - Hydrological Basins in Africa",
+      "dateTime": "2014-07-03T21:17:15",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "organisation": "FAO - NRCW",
+      "input_datasets": [
+        "da165110-88fd-11da-a88f-000d939bc5d8"
+      ],
+      "output_datasets": [
+        "faec3510-f0dd-4eea-b051-771ed23151e9"
+      ],
+      "type": "usage",
+      "paramName": "model_1",
+      "info": ""
+    },
+    "model_2": {
+      "title": "Child of Hydrological Basins in Africa",
+      "dateTime": "2014-07-03T20:03:55",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "organisation": "FAO - NRCW",
+      "input_datasets": [
+        "da165110-88fd-11da-a88f-000d939bc5d8"
+      ],
+      "output_datasets": [
+        "a88383fa-7657-43b5-a278-b667a83e8418"
+      ],
+      "type": "usage",
+      "paramName": "model_2",
+      "info": ""
+    }
+  },
+  "detail_data": {
+    "  ": {
+      "linked_2_modelInput": 0,
+      "keywords": "watersheds; river basins; water resources; hydrology; AQUASTAT; AWRD",
+      "save": "http://www.fao.org/ag/AGL/aglw/aquastat/watresafrica/index.stm",
+      "organisation": "FAO - NRCW",
+      "type": " ",
+      "info": " ",
+      "title": "Hydrological Basins in Africa (Sample record, please remove!)",
+      "time": "2006-01-01T04:29:00 - 2008-01-08T04:29:00",
+      "extent": "180,-90;-180,-90;-180,90;180,90",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "vector": true,
+      "view": "",
+      "paramName": "da165110-88fd-11da-a88f-000d939bc5d8",
+      "relations_csw": " "
+    },
+    "paramName": "detail"
+  },
+  "usage": {
+    "models": {
+      "usage_model_ids": [
+        "usage_model_0",
+        "usage_model_1"
+      ],
+      "paramName": "usage_models"
+    },
+    "mod_ds_relations": {
+      "paramName": "mod_ds_relations",
+      "usage_model_0": "model_0",
+      "map0": {
+        "dataset_ids": [
+          "faec3510-f0dd-4eea-b051-771ed23151e9"
+        ],
+        "paramName": "usage_models_0"
+      },
+      "usage_model_1": "model_1",
+      "map1": {
+        "dataset_ids": [
+          "a88383fa-7657-43b5-a278-b667a83e8418"
+        ],
+        "paramName": "usage_models_1"
+      }
+    },
+    "paramName": "usage"
+  },
+  "lineage_detail": {
+    "statement": {
+      "description": "",
+      "paramName": "statement"
+    },
+    "process_steps": {
+      "process_step_0": {
+        "dateTime": "2007-11-06T12:13:00",
+        "processing_list": {
+          "processing_0": {
+            "runTimeParams": "",
+            "docs": {
+              "doc_0": {
+                "id": "",
+                "alternateTitle": "",
+                "title": null,
+                "others": null,
+                "date": null,
+                "paramName": "doc_0"
+              },
+              "paramName": "docs_0",
+              "size": 1
+            },
+            "sw_refs": {
+              "paramName": "sw_refs_0"
+            },
+            "identifier": "Hydrological Basins in Africa (Sample record, please remove!)",
+            "paramName": "processing_0"
+          },
+          "paramName": "processingList"
+        },
+        "description": "The linework of the map is obtained by delineating drainage basin boundaries from an hydrologically corrected digital elevation model with a resolution of 1 * 1 km.",
+        "rationale": "not set.",
+        "processor": "FAO - NRCW",
+        "paramName": "process_step_0"
+      },
+      "paramName": "process_steps"
+    },
+    "paramName": "lineage_detail"
+  },
+  "paramName": "metaViz_data",
+  "dataset_data": {
+    "paramName": "datasets",
+    "faec3510-f0dd-4eea-b051-771ed23151e9": {
+      "keywords": "keywords",
+      "save": "http://www.fao.org/ag/AGL/aglw/aquastat/watresafrica/index.stm",
+      "organisation": "FAO - NRCW",
+      "type": "usage",
+      "info": " ",
+      "title": "CHILD 2 - Hydrological Basins in Africa",
+      "time": "2006-01-01T04:29:00 - 2008-01-08T04:29:00",
+      "extent": "180,-90;-180,-90;-180,90;180,90",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "vector": true,
+      "view": "",
+      "paramName": "faec3510-f0dd-4eea-b051-771ed23151e9",
+      "relations_csw": " "
+    },
+    "a88383fa-7657-43b5-a278-b667a83e8418": {
+      "keywords": "keywords",
+      "save": "http://www.fao.org/ag/AGL/aglw/aquastat/watresafrica/index.stm",
+      "organisation": "FAO - NRCW",
+      "type": "usage",
+      "info": " ",
+      "title": "Child of Hydrological Basins in Africa",
+      "time": "2006-01-01T04:29:00 - 2008-01-08T04:29:00",
+      "extent": "180,-90;-180,-90;-180,90;180,90",
+      "description": "This dataset is developed as part of a GIS-based information system on water resources for the African continent. It has been published in the framework of the AQUASTAT - programme of the Land and Water Division of the Food and Agriculture Organization of the United Nations, as part of FAO Land and Water Digital Media Series #13: \"Atlas of Water Resources and Irrigation in Africa\".\n\nFor a wider distribution and to support other projects at FAO this map is also distributed in a DVD as part of a publication entitled: \"Jenness, J.; Dooley, J.; Aguilar-Manjarrez, J.; Riva, C. African Water Resource Database. GIS-based tools for inland aquatic resource management. 2. Technical manual and workbook. CIFA Technical Paper. No. 33, Part 2. Rome, FAO. 2007. 308 p.\"",
+      "vector": true,
+      "view": "",
+      "paramName": "a88383fa-7657-43b5-a278-b667a83e8418",
+      "relations_csw": " "
+    }
+  }
+}
