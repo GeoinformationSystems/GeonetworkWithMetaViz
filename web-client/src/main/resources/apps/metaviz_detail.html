@@ -106,7 +106,9 @@
 	</style>
 </head>
 <body class="tundra" onload="init();" id="gmf_body">
-    
+                        <div id="view" title="switch between parent-child-view and lineage-view">
+				<div id="icon_View" onmousedown='toggleView()'></div>
+			</div>
 	<div id="tabMetaData" style="visibility:hidden;" onclick="hideInfo()">
 		
 	</div>	
@@ -206,6 +208,7 @@
 				<div id="icon_arrow_left" onmousedown='toggleLineage()'></div>
 				<div id="icon_arrow_right" onmousedown='toggleLineage()' style="visibility:hidden;"></div>
 			</div>
+                        
 		</div> 
                 
 	</div>

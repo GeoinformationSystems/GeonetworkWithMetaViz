@@ -1017,6 +1017,7 @@ GeoNetwork.Catalogue = Ext.extend(Ext.util.Observable, {
             onclickString = onclickString.split("(\'")[1].split("\')")[0];
             kidsString += onclickString + "+";
         }
+        kidsString = kidsString.slice(0, -1);//delete last +
         var url = pathToMetaViz + service + '?uuid=' + uuid + '&children=' + kidsString;
         window.open(url, this.windowName, this.windowOption);  
     },

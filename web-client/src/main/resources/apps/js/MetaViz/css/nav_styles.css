@@ -65,6 +65,15 @@ div#icon_arrow_right:hover {
 /*   width: 50px;  */
 /* } */
 
+div#icon_View { 
+  background-image:url(../images/icons/view.png);
+  background-position:right; 
+  background-repeat:no-repeat;
+  height:30px;   
+  position:absolute; 
+  width:30px; 
+}
+
 #lineage_link {
   position:absolute;
   left:50px;

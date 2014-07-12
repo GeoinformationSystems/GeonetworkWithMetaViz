@@ -204,6 +204,7 @@
      table.appendChild(createTableRow("Title: ", detail.title));
      table.appendChild(createTableRow("Description: ", detail.description));
      table.appendChild(createTableRow("Organisation: ", detail.organisation));
+     table.appendChild(createTableRow("Identifier: ", detail.paramName));
      document.getElementById("tabMetaData").appendChild(table);
      showFeature(id);
   }
