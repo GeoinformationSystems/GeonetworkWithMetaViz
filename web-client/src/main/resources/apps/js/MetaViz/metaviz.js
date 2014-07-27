@@ -28,7 +28,8 @@ var gmd="http://www.isotc211.org/2005/gmd";
 var gco="http://www.isotc211.org/2005/gco";
 var gml="http://www.opengis.net/gml";
 //switch parent-child / lineage view
-var viewLineage = false;
+var viewLineage = true;
+var dataID;
 
 /**
  * Method to call requestController servlet and get json string.
@@ -163,7 +164,7 @@ domain = id.split("=")[0]+"=";
 //console.log(response);
 
         //new code to read xml from http request and convert to valid json 
-        readXML(id, function(err, response) { // pass an anonymous function
+        readXML(id,true, function(err, response) { // pass an anonymous function
             if (err) {
                 //do nothing
             } else {
@@ -179,7 +180,7 @@ domain = id.split("=")[0]+"=";
 };
 
 //get xml from http request
-function readXML(theUrl,callback){  
+function readXML(theUrl, boolXML,callback){  
     var xmlhttp=null;
     if (window.XMLHttpRequest)
     {// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -193,7 +194,10 @@ function readXML(theUrl,callback){
     {       
         if (xmlhttp.readyState==4 && xmlhttp.status==200)
         {
-            callback(null, xmlhttp.responseXML);
+            if(boolXML)
+                callback(null, xmlhttp.responseXML);
+            else 
+                callback(null, xmlhttp.responseText);
         }
         else{ 
            // callback(xmlhttp.statusText);
@@ -205,9 +209,14 @@ function readXML(theUrl,callback){
 
 //convert xml to json
 function prepareData(xml,children){   
-   
+   try{
+   code = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
+   codeSpace = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
    //ID
-   dataID = xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
+   dataID = codeSpace+":"+code;//xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
+   }catch (e){
+   dataID = xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;    
+   }
    //keywords
    keywords = "";
    keywordObject = xml.getElementsByTagNameNS(gmd,"MD_Keywords")[0].getElementsByTagNameNS(gmd,"keyword");
@@ -381,8 +390,43 @@ function prepareData(xml,children){
         //get childrens
         addChildren(children, dataID);
     }else{
+        try{
         //add lineage datasets
-        addLineageDS(xml);
+        addLineageDS(xml,"model_0", "lineage");
+        //search for identifier, get results as usage datasets
+        //children id to adddChildren
+        //http://localhost:8080/geonetwork/srv/eng/main.search?any_OR_keyword=urn:glues:lmu:metadata:dataset%20promet
+        
+        // code + codeSpace used for keyword search
+        code = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
+        codeSpace = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
+        searchURL = domain.split("srv")[0]+"srv/eng/main.search?any_OR_keyword="+code+" "+codeSpace;
+        readXML(searchURL,false, function(err, response) { // pass an anonymous function
+            if (err) {
+                //do nothing
+            } else {
+                //parsing doesnt work because of different errors: open tags etc
+//                var parser=new DOMParser();
+//                var xmlDoc=parser.parseFromString(table,"text/xml");
+//                var tds = xmlDoc.getElementById("loadingMD"); 
+                table= response.split("<table>");
+                searchString ="";
+                for(var i =1;i<table.length;i++){
+                  tableContent = table[i].split("</div>")[0]; 
+                  name = tableContent.split("h1")[1].split("\">")[2].split("</a>")[0];
+                  uuid = tableContent.split("uuid=")[1].split("&amp;")[0];
+                  if(xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML !=name){
+                      searchString+=uuid+"+";
+                  }  
+                }
+                searchString = searchString.slice(0, -1);//delete last +
+                addChildren(searchString, dataID);
+            } 
+        });
+    }catch(e){            //-> if there is no code and codespace, switch back to parent view
+        toggleView();
+    }
+        
     }
 
    return JSON.stringify(jsonObject);
@@ -442,7 +486,7 @@ function addParent(xml){
        jsonObject["model_data"]["model_0"]["input_datasets"][0]=parent;
        //get parent xml from http request
        var parentXML;
-       readXML(domain+parent, function(err, response) { // pass an anonymous function
+       readXML(domain+parent,true, function(err, response) { // pass an anonymous function
             if (err) {
                 //do nothing
             } else {
@@ -493,12 +537,21 @@ function addChildren(children, motherID){
     childCounter = 1; //0 = lineage model 0 - maybe set usage models first and lineage model last, like previously
     for(var j = 0;j<childrenArray.length;j++){
         var xmlKiddy;
-        readXML(domain+childrenArray[j], function(err, response) { // pass an anonymous function
+        readXML(domain+childrenArray[j],true, function(err, response) { // pass an anonymous function
             //console.log(domain+childrenArray[j]);
             if (err) {
                 //do nothing
             } else {
                 xmlKiddy=response;
+                 try{
+                    dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML); 
+                }catch(e){
+                    try{
+                        dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"DateTime")[0].innerHTML);      
+                }catch(e){
+                    dateTime = ""; 
+                }  
+            }
                 //add children to dataset
                 addDataset(childrenArray[j],xmlKiddy);  
                 kidId=xmlKiddy.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
@@ -513,7 +566,7 @@ function addChildren(children, motherID){
                     }
                 jsonObject["model_data"]["model_"+childCounter]={
                     "title": modelTitle,//xmlKiddy.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML,
-                    "dateTime": emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"DateTime")[0].innerHTML),
+                    "dateTime": dateTime,
                     "description":  emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
                     "organisation": emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
                     "input_datasets": [
@@ -535,6 +588,12 @@ function addChildren(children, motherID){
                     ],
                     "paramName":"usage_models_"+(childCounter-1)
                 };
+                //add usage inputs if lineage view is active
+                if(viewLineage){
+                     addLineageDS(xmlKiddy,"model_"+(childCounter),"usage_input");
+                }
+                
+                
             }//end else
         });//end readXML  
         childCounter++;
@@ -551,20 +610,25 @@ function toggleView(){
     metaViz.showMetaViz(id, children);
 }
 /**
- * add lineage ds from gmd:source
+ * add lineage ds from gmd:source - model_0 = main model with type lineage - other models have usage_input
  * @param {type} xml
  * @returns {undefined}
  */
-function addLineageDS(xml){
+function addLineageDS(xml,model,type){
     for(var i=0;i<xml.getElementsByTagNameNS(gmd,"source").length;i++){
         name = emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML)+":"+emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);
-        jsonObject['mapping_ids_uuids']["lineage_dataset_"+i]=name;
-        jsonObject["model_data"]["model_0"]["input_datasets"][i]=name;
+        if(type=="lineage"){
+            jsonObject['mapping_ids_uuids']["lineage_dataset_"+i]=name;
+            jsonObject["model_data"][model]["input_datasets"][i]=name;
+        } else {
+            jsonObject["model_data"][model]["input_datasets"][i]=name;
+        }
+        if(dataID != name){
         jsonObject["dataset_data"][name]={
                 "keywords": "keywords",
                 "save": "" ,//emptyChecker(parentXML.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML),
                 "organisation": "",
-                "type": "lineage", 
+                "type": type, 
                 "info": " ",
                 "title": emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
                 "time": emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"date")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML), //emptyChecker(parentXML.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
@@ -575,6 +639,7 @@ function addLineageDS(xml){
                 "paramName": name,
                 "relations_csw": " "
                 };
+            }
     }
 }
 /**

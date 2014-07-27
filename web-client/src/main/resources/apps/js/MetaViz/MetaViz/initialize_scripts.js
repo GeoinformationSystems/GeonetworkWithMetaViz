@@ -49,6 +49,8 @@
     mStore.fetchItemByIdentity({ identity: "mapping_ids_uuids", onItem: function(item, request) { mappings = item; }}); 
  
     //MODELS
+    modelString = "Model";
+    if (!viewLineage)modelString="Parent-Children-Relation";
     maxInput=0;
     for (var i = 0; i < num_lin_mod; i++) {
     	console.log("num_lin_mo:"+i);
@@ -56,7 +58,7 @@
       var mappedID = mStore.getValues(mappings, "lineage_model_" + i);    
       mStore.fetchItemByIdentity({ identity: mappedID, onItem: function(item, request) { model = item; }}); 
       //displayed type, title, organisation, time+extent, description, intern type (eg. lineage_model), vector, time, info, viewing, store
-      if (model != null) buildCardSet("Model", model.title, model.organisation, "", "", model.type+"_model", false, false, false, false, false);
+      if (model != null) buildCardSet(modelString, model.title, model.organisation, "", "", model.type+"_model", false, false, false, false, false);
     }
     
     for (var i = 0; i < num_us_mod; i++) { 
@@ -66,7 +68,7 @@
       mStore.fetchItemByIdentity({ identity: mappedID, onItem: function(item, request) { model = item; }}); 
       //displayed type, title, organisation, time+extent, description, intern type (eg. lineage_model), vector, time, info, viewing, store
       if (model != null) {
-    	  buildCardSet("Model", model.title, model.organisation, "", "", model.type+"_model", false, false, false, false, false);
+    	  buildCardSet(modelString, model.title, model.organisation, "", "", model.type+"_model", false, false, false, false, false);
     	  		
     	  //get inputs for usage models
     	  var inputs = [];
