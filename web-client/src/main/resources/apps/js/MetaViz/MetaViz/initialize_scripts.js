@@ -32,6 +32,16 @@
     det_desc_tip = new dijit.Tooltip({ connectId: ["detail_title"],
         label: '<div class="tooltip"></div>' 
   	});    
+        
+        
+        
+        
+        //console.log = dojo.byId("page").style.height;
+
+console.log("nu");
+var contentBox = dojo.contentBox("lines");
+console.log(contentBox);
+console.log = ("height: "+contentBox.h);
   }
   
   function initData() {
@@ -50,7 +60,17 @@
  
     //MODELS
     modelString = "Model";
-    if (!viewLineage)modelString="Parent-Children-Relation";
+    if (viewLineage==false){
+        modelString="Parent-Children-Relation";
+        dojo.byId("lin_pub_texts").style.visibility = "hidden";
+        dojo.byId("icon_arrow_left").title = "highlight parent";
+        dojo.byId("icon_arrow_right").title = "highlight children";
+    }else {
+        dojo.byId("lin_pub_texts").style.visibility = "visible";
+        dojo.byId("icon_arrow_left").title = "switch to Lineage - highlights left side";
+        dojo.byId("icon_arrow_right").title = "switch to Usage - highlights right side";
+        
+    }
     maxInput=0;
     for (var i = 0; i < num_lin_mod; i++) {
     	console.log("num_lin_mo:"+i);

@@ -21,7 +21,9 @@
   //-> getting right tool in dep. of overed card an its properties - sets position of tool and style visible
   //-- id - String id of dataset, model, service
   function show_tools(id, has_info, has_viewing, has_store) {     	  
-	actual_id = id; 
+	return;                                                     //deavtivated - not needed...for now
+      
+      actual_id = id; 
     var tool_id;
      
     var move_Pos0 = 36;   //lin ds mini
@@ -152,7 +154,8 @@
     var mapped_id = mStore.getValues(data, actual_id); 
     
     var map;
-    mStore.fetchItemByIdentity({ identity: mapped_id, onItem: function(item, request) { map = item; }});  
+    mStore.fetchItemByIdentity({ identity: mapped_id, onItem: function(item, request) { map = item; }});
+    console.log(map.info);
     window.open(map.info);
   }
   
@@ -168,7 +171,8 @@
     window.open(map.save);
   }
   
-  function focus_element(id) {
+  function focus_element(id, isInBool) { //isInBool determines if dataset is 100% in gn - otherwise we just give a search link
+                                         // called from card_creation - isInBool is true for usage and detail0, since they are based on actual gn information
 
          function createTableRow(contentCell1, contentCell2) {
          var row = document.createElement("tr");
@@ -198,13 +202,39 @@
      var detail;
      mStore.fetchItemByIdentity({ identity: mappedID, onItem: function(item, request) { detail = item; }});
      //append child with information
-     document.getElementById("tabMetaData").innerHTML="";
+     //document.getElementById("tabMetaData").innerHTML="";
+     document.getElementById("tabMetaData").innerHTML="<a onclick='hideInfo()' style='float:right;padding-right:10px;padding-left:30px;'>close</a>";
      var table = document.createElement("table");
      table.setAttribute("id", "metaDataTable");
      table.appendChild(createTableRow("Title: ", detail.title));
      table.appendChild(createTableRow("Description: ", detail.description));
      table.appendChild(createTableRow("Organisation: ", detail.organisation));
-     table.appendChild(createTableRow("Identifier: ", detail.paramName));
+     table.appendChild(createTableRow("Identifier: ", detail.paramName));  //identifier for usage and model-ds are same as in geonetwork, inputs aren't
+     table.appendChild(createTableRow("GeoNetwork-ID: ", detail.gnID));
+      var a = document.createElement("a");
+      var row = document.createElement("tr");
+      var cell1 = document.createElement("td");
+      var cell2 = document.createElement("td");
+      if(isInBool == true){                     //open url for given id
+         if(typeof detail.gnID=="undefined")
+            a.href =idDomain+detail.paramName;
+         else
+            a.href =idDomain+detail.gnID;   
+         a.innerHTML = "show information";
+     } else{                                    //search for title - lineage ds isn't necessarily in gn
+         a.href=searchDomain+detail.title;
+         a.innerHTML="search information";
+     }
+      a.target = "_blank";
+      cell1.innerHTML="More information:";
+      cell2.appendChild(a);
+      row.appendChild(cell1);row.appendChild(cell2);
+      table.appendChild(row);
+      
+      
+      
+      
+      
      document.getElementById("tabMetaData").appendChild(table);
      showFeature(id);
   }

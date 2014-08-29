@@ -106,7 +106,7 @@
 	</style>
 </head>
 <body class="tundra" onload="init();" id="gmf_body">
-                        <div id="view" title="switch between parent-child-view and lineage-view">
+                        <div id="view" title="switch between parent-child-view and lineage-view" style="cursor: pointer;">
 				<div id="icon_View" onmousedown='toggleView()'></div>
 			</div>
 	<div id="tabMetaData" style="visibility:hidden;" onclick="hideInfo()">
@@ -205,8 +205,9 @@
 			</div>
 			<!--div id="hide_and_show" style="position:absolute; width:30px; height:30px; top:10px; left:1000px;"-->
 			 <div id="hide_and_show" style="position:absolute;width:50px;height:50px;top:10px;left:10px;">
-				<div id="icon_arrow_left" onmousedown='toggleLineage()'></div>
-				<div id="icon_arrow_right" onmousedown='toggleLineage()' style="visibility:hidden;"></div>
+				<div id="icon_arrow_left" onmousedown='toggleLineage()' title="switch to Lineage - highlights left side" style="cursor: pointer;"></div>
+				<div id="icon_arrow_right" onmousedown='toggleLineage()' style="visibility:hidden;cursor: pointer;" title="switch to Usage - highlights right side"></div>
+                                <!--arrow title is changed in initialize_scripts.js based on lineage or parent view-->
 			</div>
                         
 		</div> 
