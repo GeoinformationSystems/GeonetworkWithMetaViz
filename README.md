@@ -1,4 +1,16 @@
-# Features
+MetaViz is a web client that visually illustrates the relations between numerical models/simulations and their corresponding in- and output data. GeoNetwork is an OpenSource metadata catalog, which has been extended with MetaViz scripts. Users of this extended catalog can interactively navigate through the lineage of datasets that are stored in the catalog.
+
+With METAVIZ the provenance of a dataset is represented as a tree‐like graph that connects the dataset to the process it originates from as well as the source datasets of these processes (white boxes).Other relevant metadata of the dataset, such as parent‐child‐relationships to other datasets and data series, publication references and in particular quality information is listed next to the visualization. The focus of the visualization can be either on an
+input dataset, a numerical model or an output dataset, such that the use of a dataset, the different outputs of a model or the origin of a dataset can be analyzed.
+
+The MetaViz application has been developed in the project GLUES. GLUES (Global Assessment of Land Use Dynamics, Greenhouse Gas Emissions and Ecosystem Services) is a coordination project of the international research program 'Sustainable Land Management' of the German Ministry of Education and Research (BMBF). Within this funding measure twelve so called regional collaborative projects (RPs) are researching the impacts of climate and socio-economic changes and a corresponding optimization of the use of land and natural resources in different countries and regions. For an effective synthesis of research results the underlying base scenarios and the data sets must be disseminated and shared between the involved research institutions. Within the framework of GLUES the Professorship of Geoinformation Systems of the Technical University Dresden is implementing a Geodata Infrastructure (GDI) to facilitate this interdisciplinary data exchange between the scientists of GLUES and the RPs.
+
+Information about the project GLUES: http://modul-a.nachhaltiges-landmanagement.de/en/modul-a/
+Information about the Geoportal GLUES and developed applications: http://sustainable-landmanagement.net/glues-geoportal/
+Information about the MetaViz application: http://sustainable-landmanagement.net/glues-geoportal/use/applications.html
+
+
+# General Features of GeoNetwork
 
 * Immediate search access to local and distributed geospatial catalogues
 * Up- and downloading of data, graphics, documents, pdf files and any other content type
@@ -9,7 +21,7 @@
 * Fine-grained access control with group and user management
 * Multi-lingual user interface
 
-# Documentation
+# Documentation of GeoNetwork
 
 User documentation is in the docs submodule in the current repository and is compiled into html pages during a release for publishing on
 a website.
