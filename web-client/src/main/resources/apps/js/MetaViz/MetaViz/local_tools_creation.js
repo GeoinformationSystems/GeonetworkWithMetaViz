@@ -155,11 +155,11 @@
     for (var i=0; i <= num_us_mod; i++) {
       new dijit.Tooltip({
           connectId: ["lineage_dataset_"+i],
-          label: '<div class="tooltip">Click to get further information for this usage process.</div>'
+          label: '<div class="tooltip">Click to get further information for this lineage dataset.</div>'
       });
       new dijit.Tooltip({
           connectId: ["lineage_dataset_mini_"+i],
-          label: '<div class="tooltip">Click to get further information for this usage process.</div>'
+          label: '<div class="tooltip">Click to get further information for this lineage dataset.</div>'
       });     
     }
     
