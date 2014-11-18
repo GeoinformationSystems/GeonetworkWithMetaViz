@@ -17,4 +17,14 @@
                 <goal>jetty:stop</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-jetty:run-war</actionName>
+            <displayName>jetty:run-war</displayName>
+            <goals>
+                <goal>jetty:run-war</goal>
+            </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </action>
     </actions>

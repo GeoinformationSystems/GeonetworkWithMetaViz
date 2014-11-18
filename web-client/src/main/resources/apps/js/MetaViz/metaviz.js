@@ -14,19 +14,21 @@
  * limitations under the License.
  *
  */
-var num_lin_ds = 0,
-    num_us_ds = 0;
-var num_lin_mod = 0,
-    num_us_mod = 0;
+var num_lin_ds = 0, num_us_ds = 0;
+var num_lin_mod = 0, num_us_mod = 0;
+
 //xml-json variables / geonetwork 
 var domain, idDomain, searchDomain;
 var id, children;
 var metaViz = {};
-var jsonObject;    
+var jsonObject;
+
 //namespaces
-var gmd="http://www.isotc211.org/2005/gmd";
-var gco="http://www.isotc211.org/2005/gco";
-var gml="http://www.opengis.net/gml";
+var gmd = "http://www.isotc211.org/2005/gmd";
+var gco = "http://www.isotc211.org/2005/gco";
+var gml = "http://www.opengis.net/gml";
+var gmi = "http://eden.ign.fr/xsd/metafor/20050620/gmi";
+
 //switch parent-child / lineage view
 var viewLineage = true;
 var dataID, gnID;
@@ -78,51 +80,43 @@ metaViz.hideMetaViz = function() {
     al = dojo.byId("actual_lines");
     while (al.hasChildNodes()) {
         al.removeChild(al.lastChild);
-    }
-
+    } 
     ldmcc = dojo.byId("lineage_dataset_mini_cards_container");
     while (ldmcc.hasChildNodes()) {
         ldmcc.removeChild(ldmcc.lastChild);
-    }
-
+    } 
     lmmcc = dojo.byId("lineage_model_mini_cards_container");
     while (lmmcc.hasChildNodes()) {
         lmmcc.removeChild(lmmcc.lastChild);
-    };
-
+    }  
     udmcc = dojo.byId("usage_dataset_mini_cards_container");
     while (udmcc.hasChildNodes()) {
         udmcc.removeChild(udmcc.lastChild);
-    };
-
+    }  
     ummcc = dojo.byId("usage_model_mini_cards_container");
     while (ummcc.hasChildNodes()) {
         ummcc.removeChild(ummcc.lastChild);
-    };
-
+    }  
     ldcc = dojo.byId("lineage_dataset_cards_container");
     while (ldcc.hasChildNodes()) {
         ldcc.removeChild(ldcc.lastChild);
-    };
-
+    }  
     lmcc = dojo.byId("lineage_model_cards_container");
     while (lmcc.hasChildNodes()) {
         lmcc.removeChild(lmcc.lastChild);
-    };
-
+    }  
     umcc = dojo.byId("usage_model_cards_container");
     while (umcc.hasChildNodes()) {
         umcc.removeChild(umcc.lastChild);
-    };
-
+    } 
     udcc = dojo.byId("usage_dataset_cards_container");
     while (udcc.hasChildNodes()) {
         udcc.removeChild(udcc.lastChild);
-    };
+    } 
     udic = dojo.byId("input_container");
     while (udcc.hasChildNodes()) {
         udic.removeChild(udcc.lastChild);
-    };
+    } 
 };
 
 /**
@@ -133,7 +127,7 @@ metaViz.hideMetaViz = function() {
  * @param id - id of data set
  */
 metaViz.showMetaViz = function(id, children) {
-   
+
     //navi_hide_show_logic -> metaViz is not hidden at beginning
     //show Preloader
     guiFunctions.showPreloaderCallback().then(function() {
@@ -144,192 +138,207 @@ metaViz.showMetaViz = function(id, children) {
         if (dojo.byId("map_info_text") != null)
             dojo.byId("map_info_text").innerHTML = "Click on an item in the list to reset the lineage view to map.";
 
-       //Code from old metaviz implementation
-       // metaViz.dataBaseRequest(mode, id, function(data) {
-       //    metaViz.displayMetaViz(data);
-       //     hidePreloader();
-       //
-       //     if (heatmap)
-       //         metaVizMode = true;
-       //
-       // });
-        
-        
-    
-    this.id = id; this.children = children;       
-    //get domain (needed for parents
-    domain = id.split("=")[0]+"=";                              //url to show xml of mainData
-    gnID = id.split("=")[1];
-    idDomain=domain.split("srv")[0]+"srv/eng/search#|";             //url to get info based on ID
-    searchDomain=  domain.split("srv")[0]+"srv/eng/search#fast=index&from=1&to=10&any_OR_geokeyword=" //url to search for keywords
+        this.id = id;
+        this.children = children;
+        //get domain (needed for parents)
+        domain = id.split("=")[0] + "=";                              //url to show xml  
+        gnID = id.split("=")[1];
+        idDomain = domain.split("srv")[0] + "srv/eng/search#|";             //url to get info based on ID
+        searchDomain = domain.split("srv")[0] + "srv/eng/search#fast=index&from=1&to=10&any_OR_geokeyword=" //url to search for keywords
 
-
-//test code for local json files
-//file="test.json"; //only test file - overwrite
-//localJson = readTextFile(file);
-//metaViz.displayMetaViz(localJson);
-//hidePreloader();
-//console.log(response);
-
-        //new code to read xml from http request and convert to valid json 
-        readXML(id,true, function(err, response) { // pass an anonymous function
+        //read xml from http request and convert to valid json 
+        readXML(id, true, function(err, response) { // pass an anonymous function
             if (err) {
                 //do nothing
             } else {
-                
                 var json = prepareData(response, children);
                 metaViz.displayMetaViz(json);
                 hidePreloader();
-                
-            } 
+
+            }
         });
     });
-      
+
 };
 
 //get xml from http request
-function readXML(theUrl, boolXML,callback){  
-    var xmlhttp=null;
-    if (window.XMLHttpRequest)
-    {// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp=new XMLHttpRequest();
+function readXML(theUrl, boolXML, callback) {
+    var xmlhttp = null;
+    if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {// code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    else
-    {// code for IE6, IE5
-        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    xmlhttp.onreadystatechange=function()
-    {       
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-            if(boolXML)
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            if (boolXML)
                 callback(null, xmlhttp.responseXML);
-            else 
+            else
                 callback(null, xmlhttp.responseText);
-        }
-        else{ 
-           // callback(xmlhttp.statusText);
+        } else {
+            // callback(xmlhttp.statusText);
         }
     }
-    xmlhttp.open("GET", theUrl, false );
-            xmlhttp.send();  
-};
+    xmlhttp.open("GET", theUrl, false);
+    xmlhttp.send();
+}
+;
 
 //convert xml to json
-function prepareData(xml,children){   
-   try{
-   code = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-   codeSpace = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-   //ID
-   dataID = codeSpace+":"+code;//xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-   }catch (e){
-   dataID = xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;    
-   }
-   //keywords
-   keywords = "";
-   keywordObject = xml.getElementsByTagNameNS(gmd,"MD_Keywords")[0].getElementsByTagNameNS(gmd,"keyword");
-   for (var i=0; i<keywordObject.length;i++){
-       keywords+=keywordObject[i].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-       if(i!=keywordObject.length-1)keywords+="; ";
-   }
-   //vector true/false
-   if( xml.getElementsByTagNameNS(gmd,"MD_Format")[0] != undefined ){
-    format = xml.getElementsByTagNameNS(gmd,"MD_Format")[0].getElementsByTagNameNS(gmd,"name")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-    if (format==="ShapeFile") vector = true;else vector = false;
-   }else (vector = false);
+function prepareData(xml, children) {
+    try {
+        code = xml.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+        codeSpace = xml.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+        //ID
+        dataID = codeSpace + ":" + code;
+    } catch (e) {
+        dataID = xml.getElementsByTagNameNS(gmd, "fileIdentifier")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+    }
+    //keywords
+    keywords = "";
+    keywordObject = xml.getElementsByTagNameNS(gmd, "MD_Keywords")[0].getElementsByTagNameNS(gmd, "keyword");
+    for (var i = 0; i < keywordObject.length; i++) {
+        keywords += keywordObject[i].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+        if (i != keywordObject.length - 1)
+            keywords += "; ";
+    }
+    //vector true/false 
+    var format = "";
+    if (xml.getElementsByTagNameNS(gmd, "MD_Format")[0] != undefined)
+        format = xml.getElementsByTagNameNS(gmd, "MD_Format")[0].getElementsByTagNameNS(gmd, "name")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+
+    if (format === "ShapeFile" || format === "GML" || format === "RDF" || format === "XML")
+        vector = true;
+    else
+        vector = false;
 
 
     //try catches because of different formats
-    try{
-       modelTitle = emptyChecker(xml.getElementsByTagNameNS(gmd,"MD_Identifier")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);
-    }catch(e){
-       modelTitle = xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML; 
+    try {
+        modelTitle = emptyChecker(xml.getElementsByTagNameNS(gmd, "MD_Identifier")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+    } catch (e) {
+        modelTitle = xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
     }
-    try{
-       dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML); 
-    }catch(e){
-        try{
-            dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"DateTime")[0].innerHTML);      
-        }catch(e){
-            dateTime = ""; 
-        }  
+    try {
+        dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd, "dateStamp")[0].getElementsByTagNameNS(gco, "Date")[0].innerHTML);
+    } catch (e) {
+        try {
+            dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd, "dateStamp")[0].getElementsByTagNameNS(gco, "DateTime")[0].innerHTML);
+        } catch (e) {
+            dateTime = "";
+        }
     }
-    try{
-      save = emptyChecker(xml.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML);
-    }catch(e){
-      save = "";  
+    try {
+        save = emptyChecker(xml.getElementsByTagNameNS(gmd, "linkage")[0].getElementsByTagNameNS(gmd, "URL")[0].innerHTML);
+    } catch (e) {
+        save = "";
     }
-    try{
-      time = emptyChecker(xml.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML));
-    }catch(e){
-      time = "";  
+    try {
+        time = emptyChecker(xml.getElementsByTagNameNS(gml, "beginPosition")[0].innerHTML + " - " + emptyChecker(xml.getElementsByTagNameNS(gml, "endPosition")[0].innerHTML));
+    } catch (e) {
+        time = "";
     }
-    try{
-      lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd,"lineage")[0].getElementsByTagNameNS(gmd,"statement")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);  
-    }catch(e){
-      lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd,"lineage")[0].getElementsByTagNameNS(gmd,"description")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);  
+    try {
+        lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd, "lineage")[0].getElementsByTagNameNS(gmd, "statement")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+    } catch (e) {
+        lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd, "lineage")[0].getElementsByTagNameNS(gmd, "description")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
     }
-    
+    try {
+        rationale = emptyChecker(
+                xml.getElementsByTagNameNS(gmd, "lineage")[0].
+                getElementsByTagNameNS(gmd, "LI_Lineage")[0].
+                getElementsByTagNameNS(gmd, "processStep")[0].
+                getElementsByTagNameNS(gmi, "LE_ProcessStep")[0].
+                getElementsByTagNameNS(gmd, "rationale")[0].
+                getElementsByTagNameNS(gco, "CharacterString")[0].
+                innerHTML);
+    } catch (e) {
+        rationale = "";
+    }
 
-   //JSON Object -pure without ectra lineage or usage datasets
+    var publication_title = "", publication_date = "", publication_url = "";
+    if (emptyChecker(xml.getElementsByTagNameNS(gmi, "documentation")[0]) != null) {
+        if (xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                getElementsByTagNameNS(gmd, "title")[0] != null)
+            publication_title = xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                    getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                    getElementsByTagNameNS(gmd, "title")[0].
+                    getElementsByTagNameNS(gco, "CharacterString")[0].
+                    innerHTML;
+        if (xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                getElementsByTagNameNS(gmd, "date")[0] != null)
+            publication_date = xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                    getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                    getElementsByTagNameNS(gmd, "date")[0].
+                    getElementsByTagNameNS(gmd, "CI_Date")[0].
+                    getElementsByTagNameNS(gmd, "date")[0].
+                    getElementsByTagNameNS(gco, "Date")[0].
+                    innerHTML;
+        if (xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                getElementsByTagNameNS(gmd, "otherCitationDetails")[0] != null)
+            publication_url = xml.getElementsByTagNameNS(gmi, "documentation")[0].
+                    getElementsByTagNameNS(gmd, "CI_Citation")[0].
+                    getElementsByTagNameNS(gmd, "otherCitationDetails")[0].
+                    getElementsByTagNameNS(gco, "CharacterString")[0].
+                    innerHTML;
+    }
+
+    //JSON Object - pure without extra lineage or usage datasets
     jsonObject = {
-        
         "mapping_ids_uuids": {
-        "paramName": "mapping_ids_uuids",
-        "detail_0": dataID,
-        "lineage_model_0": "model_0"
+            "paramName": "mapping_ids_uuids",
+            "detail_0": dataID,
+            "lineage_model_0": "model_0"
         },
-        
         "model_data": {
             "model_0": {
-            "title": modelTitle,//xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML,
-            "dateTime": dateTime,// emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML),  //DateTime with sample dataset
-            "description":  emptyChecker(xml.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
-            "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-            "input_datasets": [ ],
-            "output_datasets": [
-                dataID
-            ],
-            "type": "lineage",
-            "paramName": "model_0",
-            "info": ""
+                "title": modelTitle,
+                "dateTime": dateTime, //DateTime with sample dataset
+                "description": emptyChecker(xml.getElementsByTagNameNS(gmd, "abstract")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML), //or abstreact
+                "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                "input_datasets": [],
+                "output_datasets": [
+                    dataID
+                ],
+                "type": "lineage",
+                "paramName": "model_0",
+                "info": ""
             },
-        "paramName": "models"
-         },
-              
+            "paramName": "models"
+        },
         "detail_data": {
-           "  ": {
+            "  ": {
                 "linked_2_modelInput": 0,
                 "keywords": emptyChecker(keywords),
-                "save": save,//emptyChecker(xml.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML),
-                "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "type": " ", 
+                "save": save,
+                "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                "type": " ",
                 "info": " ",
-                "title": emptyChecker(xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "time": time,//emptyChecker(xml.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
+                "title": emptyChecker(xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                "time": time,
                 "extent": "180,-90;-180,-90;-180,90;180,90",
-                "description":  emptyChecker(xml.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
+                "description": emptyChecker(xml.getElementsByTagNameNS(gmd, "abstract")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML), //or abstract
                 "vector": vector,
                 "view": "",
                 "paramName": dataID,
-                "gnID":gnID,
+                "gnID": gnID,
                 "relations_csw": " "
             },
-        "paramName": "detail"
+            "paramName": "detail"
         },
-
-
         "usage": {
             "models": {
                 "usage_model_ids": [],
                 "paramName": "usage_models"
             },
-        "mod_ds_relations": {
-            "paramName": "mod_ds_relations"
-           },
-        "paramName": "usage"
+            "mod_ds_relations": {
+                "paramName": "mod_ds_relations"
+            },
+            "paramName": "usage"
         },
-        
         "lineage_detail": {
             "statement": {
                 "description": "",
@@ -337,127 +346,103 @@ function prepareData(xml,children){
             },
             "process_steps": {
                 "process_step_0": {
-                    "dateTime": dateTime,//emptyChecker(xml.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"DateTime")[0].innerHTML),
+                    "dateTime": dateTime,
                     "processing_list": {
                         "processing_0": {
-                        "runTimeParams": "",
+                            "runTimeParams": "",
                             "docs": {
                                 "doc_0": {
-                                "id": "",
-                                "alternateTitle": "",
-                                "title": null,
-                                "others": null,
-                                "date": null,
-                                "paramName": "doc_0"
+                                    "id": "",
+                                    "alternateTitle": "",
+                                    "title": publication_title,
+                                    "others": publication_url,
+                                    "date": publication_date,
+                                    "paramName": "doc_0"
                                 },
-                            "paramName": "docs_0",
-                            "size": 1
+                                "paramName": "docs_0",
+                                "size": 1
                             },
                             "sw_refs": {
-                            "paramName": "sw_refs_0"
+                                "paramName": "sw_refs_0"
                             },
-                        "identifier": emptyChecker(xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                        "paramName": "processing_0"
+                            "identifier": emptyChecker(xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                            "paramName": "processing_0"
                         },
-                    "paramName": "processingList"
+                        "paramName": "processingList"
                     },
-                "description": lineageDescription,//emptyChecker(xml.getElementsByTagNameNS(gmd,"lineage")[0].getElementsByTagNameNS(gmd,"statement")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "rationale": "not set.",
-                "processor": emptyChecker(xml.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "paramName": "process_step_0"
+                    "description": lineageDescription,
+                    "rationale": rationale,
+                    "processor": emptyChecker(xml.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                    "paramName": "process_step_0"
                 },
-            "paramName": "process_steps"
+                "paramName": "process_steps"
             },
-        "paramName": "lineage_detail"
+            "paramName": "lineage_detail"
         },
-  
         "paramName": "metaViz_data",
         "dataset_data": {
-        //  "ID": {
-        //  "time": "",
-        //  "title": "",
-        //  "keywords": "",
-        //  "save": "",
-        //  "extent": "",
-        //  "vector": "",
-        //  "description": "",
-        //  "organisation": "",
-        //  "view": "",
-        //  "type": "",
-        //  "paramName": "",
-        //  "relations_csw": "",
-        //  "info": ""
-        //  },
-        "paramName": "datasets"
+            "paramName": "datasets"
         }
     };
-    
-    if(!viewLineage){
-        console.log ("PCR-VIEW");
 
-        try{
-        //modify object to add parent/children datasets
-        //parent check
-        addParent(xml);
-         //get childrens
-        addChildren(children, dataID);
-        }catch(e){
-            console.log("error parent-children-search"); //sometimes there is a parent id but no parent--- oO
+    if (!viewLineage) {
+        try {
+            //modify object and add parent/children datasets 
+            addParent(xml);
+            addChildren(children, dataID);
+        } catch (e) {
         }
-       
-        
-    }else{
-        try{
-        console.log ("Lineage-VIEW");
-        //add lineage datasets
-        addLineageDS(xml,"model_0", "lineage");
-        //search for identifier, get results as usage datasets
-        //children id to adddChildren
-        //http://localhost:8080/geonetwork/srv/eng/main.search?any_OR_keyword=urn:glues:lmu:metadata:dataset%20promet
-        
-        // code + codeSpace used for keyword search
-        code = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-        codeSpace = xml.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-        searchURL = domain.split("srv")[0]+"srv/eng/main.search?any_OR_keyword="+code+" "+codeSpace;
-       //console.log(searchURL);
-        readXML(searchURL,false, function(err, response) { // pass an anonymous function
-            if (err) {
-                //do nothing
-            } else {
-                //parsing doesnt work because of different errors: open tags etc
-//                var parser=new DOMParser();
-//                var xmlDoc=parser.parseFromString(table,"text/xml");
-//                var tds = xmlDoc.getElementById("loadingMD"); 
-                table= response.split("<table>");
-                searchString ="";
-                for(var i =1;i<table.length;i++){
-                  tableContent = table[i].split("</div>")[0]; 
-                  name = tableContent.split("h1")[1].split("\">")[2].split("</a>")[0];
-                  gnid = tableContent.split("id=")[1].split("&amp;")[0];   //uuid is based on a button only shown to admin...
-                  if(xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML !=name){
-                      searchString+=gnid+"+";
-                  }  
+    } else {
+        try {
+            //add lineage datasets
+            addLineageDS(xml, "model_0", "lineage");
+            //search for identifier, get results as usage datasets
+            //children id to adddChildren
+            //http://localhost:8080/geonetwork/srv/eng/main.search?any_OR_keyword=urn:glues:lmu:metadata:dataset%20promet
+
+            // code + codeSpace used for keyword search
+            code = xml.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+            codeSpace = xml.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+            searchURL = domain.split("srv")[0] + "srv/eng/main.search?any_OR_keyword=" + code + " " + codeSpace;
+
+            readXML(searchURL, false, function(err, response) {
+                if (err) {
+                    //do nothing
+                } else {
+                    table = response.split("<table>");
+                    searchString = "";
+                    for (var i = 1; i < table.length; i++) {
+                        tableContent = table[i].split("</div>")[0];
+                        name = tableContent.split("h1")[1].split("\">")[2].split("</a>")[0];
+                        gnid = tableContent.split("id=")[1].split("&amp;")[0];   //uuid is based on a button only shown to admin...
+                        if (xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML != name) {
+                            searchString += gnid + "+";
+                        }
+                    }
+                    searchString = searchString.slice(0, -1);//delete last +
+                    addChildren(searchString, dataID);
                 }
-                searchString = searchString.slice(0, -1);//delete last +
-                addChildren(searchString, dataID);
-            } 
-        });
-    }catch(e){            //-> if there is no code and codespace, switch back to parent view
-        console.log ("Lineage-View Error - toggle View");
-        toggleView();
-    }
-        
+            });
+        } catch (e) {            //-> if there is no code and codespace, switch back to parent view 
+            toggleView();
+        }
+
     }
 
-   return JSON.stringify(jsonObject);
-};
+    return JSON.stringify(jsonObject);
+}
+;
 
 /**
  * check if string is null or empty - used for json creation
  */
-function emptyChecker(string){
-    if(string !== null || string !=="") return string;
-    else { console.log("empty xml string:"+string); return "";}      
+function emptyChecker(string) {
+    if (string !== null || string !== "")
+        return string;
+    else {
+        console.log("empty xml string:" + string);
+        return "";
+    }
 }
 
 /**
@@ -466,181 +451,177 @@ function emptyChecker(string){
  * @param {type} xml
  * @returns {undefined}
  */
-function addDataset(id, xml){  
-    try{
-      save = emptyChecker(xml.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML);
-    }catch(e){
-      save = "";  
+function addDataset(id, xml) {
+    try {
+        save = emptyChecker(xml.getElementsByTagNameNS(gmd, "linkage")[0].getElementsByTagNameNS(gmd, "URL")[0].innerHTML);
+    } catch (e) {
+        save = "";
     }
-    try{
-      time = emptyChecker(xml.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML));
-    }catch(e){
-      time = "";  
+    try {
+        time = emptyChecker(xml.getElementsByTagNameNS(gml, "beginPosition")[0].innerHTML + " - " + emptyChecker(xml.getElementsByTagNameNS(gml, "endPosition")[0].innerHTML));
+    } catch (e) {
+        time = "";
     }
-    try{
-    gnID=xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-    }catch(e){
-        //TODO: search in gn database for identifier od datasets - but more request...puh
+    try {
+        gnID = xml.getElementsByTagNameNS(gmd, "fileIdentifier")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+    } catch (e) {
     }
-    jsonObject["dataset_data"][id]={
-                "keywords": "keywords",
-                "save": save,//emptyChecker(xml.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML),
-                "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "type": "usage", 
-                "info": " ",
-                "title": emptyChecker(xml.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "time": time,//emptyChecker(xml.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
-                "extent": "180,-90;-180,-90;-180,90;180,90",
-                "description":  emptyChecker(xml.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
-                "vector": vector,
-                "view": "",
-                "gnID":gnID,
-                "paramName": id,
-                "relations_csw": " "
-                };//end jsonObject
-};
+    jsonObject["dataset_data"][id] = {
+        "keywords": "keywords",
+        "save": save,
+        "organisation": emptyChecker(xml.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+        "type": "usage",
+        "info": " ",
+        "title": emptyChecker(xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+        "time": time,
+        "extent": "",
+        "description": emptyChecker(xml.getElementsByTagNameNS(gmd, "abstract")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML), //or abstract
+        "vector": vector,
+        "view": "",
+        "gnID": gnID,
+        "paramName": id,
+        "relations_csw": " "
+    };//end jsonObject
+}
+;
 /**
  * add parent to jsonObject based on xml
  * @param {type} xml
  * @returns {undefined}
  */
-function addParent(xml){
-    parent="";   //TODO: loop necessary if more prants are possible
-    if (xml.getElementsByTagNameNS(gmd,"parentIdentifier")[0]!=null){
-       parent = xml.getElementsByTagNameNS(gmd,"parentIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-       console.log(parent);
-       jsonObject['mapping_ids_uuids']["lineage_dataset_0"]=parent;
-       jsonObject["model_data"]["model_0"]["input_datasets"][0]=parent;
-       //get parent xml from http request
-       var parentXML;
-       readXML(domain+parent,true, function(err, response) { // pass an anonymous function
+function addParent(xml) {
+    parent = "";
+    if (xml.getElementsByTagNameNS(gmd, "parentIdentifier")[0] != null) {
+        parent = xml.getElementsByTagNameNS(gmd, "parentIdentifier")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+        jsonObject['mapping_ids_uuids']["lineage_dataset_0"] = parent;
+        jsonObject["model_data"]["model_0"]["input_datasets"][0] = parent;
+        //get parent xml from http request
+        var parentXML;
+        readXML(domain + parent, true, function(err, response) {
             if (err) {
                 //do nothing
             } else {
                 parentXML = response;
-                
-                    //try catches because of different formats
-    
-    try{
-      save = emptyChecker(xml.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML);
-    }catch(e){
-      save = "";  
-    }
-    try{
-      time = emptyChecker(xml.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML));
-    }catch(e){
-      time = "";  
-    }
 
-                jsonObject["dataset_data"][parent]={
-                "keywords": "keywords",
-                "save": save ,//emptyChecker(parentXML.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML),
-                "organisation": emptyChecker(parentXML.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "type": "lineage", 
-                "info": " ",
-                "title": emptyChecker(parentXML.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "time": time, //emptyChecker(parentXML.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
-                "extent": "180,-90;-180,-90;-180,90;180,90",
-                "description":  emptyChecker(parentXML.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
-                "vector": vector,
-                "view": "",
-                "paramName": parent,
-                "relations_csw": " "
+                try {
+                    save = emptyChecker(xml.getElementsByTagNameNS(gmd, "linkage")[0].getElementsByTagNameNS(gmd, "URL")[0].innerHTML);
+                } catch (e) {
+                    save = "";
+                }
+                try {
+                    time = emptyChecker(xml.getElementsByTagNameNS(gml, "beginPosition")[0].innerHTML + " - " + emptyChecker(xml.getElementsByTagNameNS(gml, "endPosition")[0].innerHTML));
+                } catch (e) {
+                    time = "";
+                }
+
+                jsonObject["dataset_data"][parent] = {
+                    "keywords": "keywords",
+                    "save": save,
+                    "organisation": emptyChecker(parentXML.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                    "type": "lineage",
+                    "info": " ",
+                    "title": emptyChecker(parentXML.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                    "time": time,
+                    "extent": "180,-90;-180,-90;-180,90;180,90",
+                    "description": emptyChecker(parentXML.getElementsByTagNameNS(gmd, "abstract")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML), //or abstract
+                    "vector": vector,
+                    "view": "",
+                    "paramName": parent,
+                    "relations_csw": " ",
+                    "gnID": parent
                 };
-            } 
+            }
         });
-   }
-};
+    }
+}
+;
 /**
  * add children based on parameter children (&children=child+child+) + id of main dataset
  * @param {type} children
  * @param {type} motherID
  * @returns {undefined}
  */
-function addChildren(children, motherID){
-    if(viewLineage)domain=domain.replace("uuid","id");
-    if(children!==""){
-    childrenArray = children.split("+");
-    childCounter = 1; //0 = lineage model 0 - maybe set usage models first and lineage model last, like previously
-    for(var j = 0;j<childrenArray.length;j++){
-        var xmlKiddy;
-        readXML(domain+childrenArray[j],true, function(err, response) { // pass an anonymous function
-            //console.log(domain+childrenArray[j]);
-            if (err) {
-                //do nothing
-            } else {
-                xmlKiddy=response;
-                 try{
-                    dateTime = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML); 
-                }catch(e){
-                    try{
-                        dateTime = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"dateStamp")[0].getElementsByTagNameNS(gco,"DateTime")[0].innerHTML);      
-                }catch(e){
-                    dateTime = ""; 
-                }  
-                try{
-                codeKid = xmlKiddy.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-                codeSpaceKid = xmlKiddy.getElementsByTagNameNS(gmd,"identificationInfo")[0].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-                //ID
-                kidId = codeSpaceKid+":"+codeKid;//xml.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;
-                }catch (e){
-                kidId = xmlKiddy.getElementsByTagNameNS(gmd,"fileIdentifier")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML;    
-                }
-            }
-                //add children to dataset
-                addDataset(kidId,xmlKiddy); //childrenArray[j] makes no sense because of id and uuid
-                //modify mappings
-                jsonObject["mapping_ids_uuids"]["usage_model_"+(childCounter-1)]="model_"+childCounter;
-                jsonObject["mapping_ids_uuids"]["usage_dataset_"+(childCounter-1)]=kidId;
-                //add model
-                    try{
-                        modelTitle = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"MD_Identifier")[0].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);
-                    }catch(e){
-                        modelTitle = xmlKiddy.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML; 
+function addChildren(children, motherID) {
+    if (viewLineage)
+        domain = domain.replace("uuid", "id");
+    if (children !== "") {
+        childrenArray = children.split("+");
+        childCounter = 1; //0 = lineage model 0 - maybe set usage models first and lineage model last, like previously
+        for (var j = 0; j < childrenArray.length; j++) {
+            var xmlKiddy;
+            readXML(domain + childrenArray[j], true, function(err, response) {
+                if (err) {
+                    //do nothing
+                } else {
+                    xmlKiddy = response;
+                    try {
+                        dateTime = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd, "dateStamp")[0].getElementsByTagNameNS(gco, "Date")[0].innerHTML);
+                    } catch (e) {
+                        try {
+                            dateTime = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd, "dateStamp")[0].getElementsByTagNameNS(gco, "DateTime")[0].innerHTML);
+                        } catch (e) {
+                            dateTime = "";
+                        }
+                        try {
+                            codeKid = xmlKiddy.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+                            codeSpaceKid = xmlKiddy.getElementsByTagNameNS(gmd, "identificationInfo")[0].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+                            //ID
+                            kidId = codeSpaceKid + ":" + codeKid;
+                        } catch (e) {
+                            kidId = xmlKiddy.getElementsByTagNameNS(gmd, "fileIdentifier")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+                        }
                     }
-                jsonObject["model_data"]["model_"+childCounter]={
-                    "title": modelTitle,//xmlKiddy.getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML,
-                    "dateTime": dateTime,
-                    "description":  emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"abstract")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML), //or abstreact
-                    "organisation": emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd,"organisationName")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                    "input_datasets": [
-                        motherID
-                     ],
-                    "output_datasets": [
-                       kidId
-                    ],
-                    "type": "usage",
-                    "paramName": "model_"+childCounter,
-                     "info": ""   
-                 };
-                 //add to usage
-                jsonObject["usage"]["models"]["usage_model_ids"][childCounter-1]="usage_model_"+(childCounter-1);
-                jsonObject["usage"]["mod_ds_relations"]["usage_model_"+(childCounter-1)]="model_"+(childCounter-1); //quick fix -1 for model - otherwise usage_model_0=model_0 in mappings - and lineage has to move to last model
-                jsonObject["usage"]["mod_ds_relations"]["map"+(childCounter-1)]={
-                    "dataset_ids": [
-                        kidId
-                    ],
-                    "paramName":"usage_models_"+(childCounter-1)
-                };
-                //add usage inputs if lineage view is active
-                if(viewLineage){
-                     addLineageDS(xmlKiddy,"model_"+(childCounter),"usage_input");
-                }
-                
-                
-            }//end else
-        });//end readXML  
-        childCounter++;
-    }//end for
-   }//end if
+                    //add children to dataset
+                    addDataset(kidId, xmlKiddy);
+                    //modify mappings
+                    jsonObject["mapping_ids_uuids"]["usage_model_" + (childCounter - 1)] = "model_" + childCounter;
+                    jsonObject["mapping_ids_uuids"]["usage_dataset_" + (childCounter - 1)] = kidId;
+                    //add model
+                    try {
+                        modelTitle = emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd, "MD_Identifier")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+                    } catch (e) {
+                        modelTitle = xmlKiddy.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+                    }
+                    jsonObject["model_data"]["model_" + childCounter] = {
+                        "title": modelTitle,
+                        "dateTime": dateTime,
+                        "description": emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd, "abstract")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML), //or abstreact
+                        "organisation": emptyChecker(xmlKiddy.getElementsByTagNameNS(gmd, "organisationName")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                        "input_datasets": [
+                            motherID
+                        ],
+                        "output_datasets": [
+                            kidId
+                        ],
+                        "type": "usage",
+                        "paramName": "model_" + childCounter,
+                        "info": ""
+                    };
+                    //add to usage
+                    jsonObject["usage"]["models"]["usage_model_ids"][childCounter - 1] = "usage_model_" + (childCounter - 1);
+                    jsonObject["usage"]["mod_ds_relations"]["usage_model_" + (childCounter - 1)] = "model_" + (childCounter - 1); //quick fix -1 for model - otherwise usage_model_0=model_0 in mappings - and lineage has to move to last model
+                    jsonObject["usage"]["mod_ds_relations"]["map" + (childCounter - 1)] = {
+                        "dataset_ids": [
+                            kidId
+                        ],
+                        "paramName": "usage_models_" + (childCounter - 1)
+                    };
+                    //add usage inputs if lineage view is active
+                    if (viewLineage) {
+                        addLineageDS(xmlKiddy, "model_" + (childCounter), "usage_input");
+                    }
+                }//end else
+            });//end readXML  
+            childCounter++;
+        }//end for
+    }//end if
 }
 /**
  * switch between parent-children view and lineage view (sources in xml)
  * @returns {toggleView}
  */
-function toggleView(){
-    viewLineage = !viewLineage; 
-    //if (!viewLineage) dojo.byId("lin_pub_Texts").style.visibility = "hidden";
+function toggleView() {
+    viewLineage = !viewLineage;
     this.jsonObject = null;
     metaViz.showMetaViz(id, children);
 }
@@ -649,41 +630,91 @@ function toggleView(){
  * @param {type} xml
  * @returns {undefined}
  */
-function addLineageDS(xml,model,type){
-    for(var i=0;i<xml.getElementsByTagNameNS(gmd,"source").length;i++){
-        name = emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"codeSpace")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML)+":"+emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"code")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML);
-        if(type=="lineage"){
-            jsonObject['mapping_ids_uuids']["lineage_dataset_"+i]=name;
-            jsonObject["model_data"][model]["input_datasets"][i]=name;
+function addLineageDS(xml, model, type) {
+    for (var i = 0; i < xml.getElementsByTagNameNS(gmd, "source").length; i++) {
+        name = emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML) + ":" + emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+        if (type == "lineage") {
+            jsonObject['mapping_ids_uuids']["lineage_dataset_" + i] = name;
+            jsonObject["model_data"][model]["input_datasets"][i] = name;
         } else {
-            jsonObject["model_data"][model]["input_datasets"][i]=name;
+            jsonObject["model_data"][model]["input_datasets"][i] = name;
         }
-        if(dataID != name){
-        jsonObject["dataset_data"][name]={
+        if (dataID != name) { 
+            cS = emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+            c = emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+            sURL = domain.split("srv")[0] + "srv/eng/main.search?any_OR_keyword=" + c + " " + cS;
+
+            readXML(sURL, false, function(err, response) { // pass an anonymous function
+                if (err) { //do nothing
+                } else {
+                    t = response.split("<table>");
+                    sString = "";
+                    for (var i = 1; i < t.length; i++) {
+                        tContent = t[i].split("</div>")[0];
+                        searchedName = tContent.split("h1")[1].split("\">")[2].split("</a>")[0];
+                        gnIdent = tContent.split("id=")[1].split("&amp;")[0];   //uuid is based on a button only shown to admin...
+                        if (xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML != searchedName) {
+                            sString += gnIdent + "+";
+                            break;
+                        }
+                    }
+                    sString = sString.slice(0, -1);//delete last + 
+                    linDomain = domain.replace("uuid", "id");
+                    orga = "", bbox = "";
+                    ident = sString;
+                    readXML(linDomain + sString, true, function(err, response) {
+                        if (err) {
+                            //do nothing
+                        } else {
+                            xmlResponse = response;
+                            try {
+                                if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0]))
+                                    orga = xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0].
+                                            getElementsByTagNameNS(gmd, "organisationName")[0].
+                                            getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+                                if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "EX_GeographicBoundingBox")[0]))
+                                    bbox = xmlResponse.getElementsByTagNameNS(gmd, "westBoundLongitude")[0].
+                                            getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
+                                            xmlResponse.getElementsByTagNameNS(gmd, "eastBoundLongitude")[0].
+                                            getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
+                                            xmlResponse.getElementsByTagNameNS(gmd, "southBoundLatitude")[0].
+                                            getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
+                                            xmlResponse.getElementsByTagNameNS(gmd, "northBoundLatitude")[0].
+                                            getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", ";
+                            } catch (e) {
+                            }
+                        }
+                    });
+                }
+            }); 
+            
+            jsonObject["dataset_data"][name] = {
                 "keywords": "keywords",
-                "save": "" ,//emptyChecker(parentXML.getElementsByTagNameNS(gmd,"linkage")[0].getElementsByTagNameNS(gmd,"URL")[0].innerHTML),
-                "organisation": "",
-                "type": type, 
+                "save": "",
+                "organisation": orga,
+                "type": type,
                 "info": " ",
-                "title": emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"title")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
-                "time": emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"date")[0].getElementsByTagNameNS(gco,"Date")[0].innerHTML), //emptyChecker(parentXML.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
-                "extent": "180,-90;-180,-90;-180,90;180,90",
-                "description":  emptyChecker(xml.getElementsByTagNameNS(gmd,"source")[i].getElementsByTagNameNS(gmd,"description")[0].getElementsByTagNameNS(gco,"CharacterString")[0].innerHTML),
+                "title": emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
+                "time": emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "date")[0].getElementsByTagNameNS(gco, "Date")[0].innerHTML), //emptyChecker(parentXML.getElementsByTagNameNS(gml,"beginPosition")[0].innerHTML +" - "+ emptyChecker(xml.getElementsByTagNameNS(gml,"endPosition")[0].innerHTML)),
+                "extent": bbox,
+                "description": emptyChecker(xml.getElementsByTagNameNS(gmd, "source")[i].getElementsByTagNameNS(gmd, "description")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML),
                 "vector": vector,
                 "view": "",
                 "paramName": name,
-                "relations_csw": " "
-                };
-            }
+                "relations_csw": " ",
+                "gnID": ident
+            };
+        }
     }
 }
 /**
  * Method to show metaviz gui elements.
  */
 metaViz.displayMetaViz = function(data) {
-    //console.log(data);
-    if (dojo.byId("time4mapsMap") != null) dojo.byId("time4mapsMap").style.display = "none";
-    if (dojo.byId("mapII") != null) dojo.byId("mapII").style.display = "none";
+    if (dojo.byId("time4mapsMap") != null)
+        dojo.byId("time4mapsMap").style.display = "none";
+    if (dojo.byId("mapII") != null)
+        dojo.byId("mapII").style.display = "none";
     if (dojo.byId("map") != null) {
         var map = dojo.byId("map");
         //delete children of map
@@ -713,120 +744,8 @@ metaViz.displayMetaViz = function(data) {
             domStyle.set("btnRectangle", "display", "none");
     });
 
-
     initMetaViz(storeData);
     dojo.byId("page").style.display = "block";
     if (dijit.byId("map_contentPane"))
         dijit.byId("map_contentPane").resize();
 };
-
-
-
-
-
-
-
-
-
-//old functions
-//used for test
-function readTextFile(file)
-{
-    var allText ;
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                allText = rawFile.responseText;
-                return allText;
-                //alert(allText);
-                
-            }
-        }
-    }
-    rawFile.send(null);
-return(allText);
-};
-
-
-//stuff could be deleted
-
-// Changes XML to JSON
-function xmlToJson(xml) {
-	
-	// Create the return object
-	var obj = {};
-
-	if (xml.nodeType == 1) { // element
-		// do attributes
-		if (xml.attributes.length > 0) {
-		obj["@attributes"] = {};
-			for (var j = 0; j < xml.attributes.length; j++) {
-				var attribute = xml.attributes.item(j);
-				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
-			}
-		}
-	} else if (xml.nodeType == 3) { // text
-		obj = xml.nodeValue;
-	}
-
-	// do children
-	if (xml.hasChildNodes()) {
-		for(var i = 0; i < xml.childNodes.length; i++) {
-			var item = xml.childNodes.item(i);
-			var nodeName = item.nodeName;
-			if (typeof(obj[nodeName]) == "undefined") {
-				obj[nodeName] = xmlToJson(item);
-			} else {
-				if (typeof(obj[nodeName].push) == "undefined") {
-					var old = obj[nodeName];
-					obj[nodeName] = [];
-					obj[nodeName].push(old);
-				}
-				obj[nodeName].push(xmlToJson(item));
-			}
-		}
-	}
-	return obj;
-};
-
-
-function convertXML (xml){
-    var obj = {};
-  
-    //x=xml.getElementsByTagName("gmd:title");
-    
-   // obj["dataset_data"].push(x);
-    
-   var jsonObject = {
-        
-        name: xml.getElementsByTagName("gmd:title"),
-        bla: "blubb"
-
-  
-    };
-
-    
-   return jsonObject;
-
-};
-function loadXMLDoc(filename)
-{
-if (window.ActiveXObject)
-  {
-  xhttp = new ActiveXObject("Msxml2.XMLHTTP");
-  }
-else 
-  {
-  xhttp = new XMLHttpRequest();
-  }
-xhttp.open("GET", filename, false);
-try {xhttp.responseType = "msxml-document"} catch(err) {} // Helping IE11
-xhttp.send("");
-return xhttp.responseXML;
-};
-
