@@ -56,10 +56,7 @@ metaViz.dataBaseRequest = function(mode, id, callback) {
  */
 metaViz.hideMetaViz = function() {
     if (heatmap)
-        metaVizMode = false;
-
-    if (dojo.byId("map_info_text") != null)
-        dojo.byId("map_info_text").innerHTML = "Click on a boundingbox to get further information.";
+        metaVizMode = false; 
 
     num_lin_ds = 0, num_us_ds = 0;
     num_lin_mod = 0, num_us_mod = 0;
@@ -385,19 +382,19 @@ function prepareData(xml, children) {
         }
     };
 
+	//view parent/child mode
     if (!viewLineage) {
         try {
             //modify object and add parent/children datasets 
             addParent(xml);
             addChildren(children, dataID);
-        } catch (e) {
-        }
+        } catch (e) { }
+	//view lineage/usage mode	
     } else {
         try {
             //add lineage datasets
             addLineageDS(xml, "model_0", "lineage");
-            //search for identifier, get results as usage datasets
-            //children id to adddChildren
+            //search for identifier, get results as usage datasets 
             //http://localhost:8080/geonetwork/srv/eng/main.search?any_OR_keyword=urn:glues:lmu:metadata:dataset%20promet
 
             // code + codeSpace used for keyword search
@@ -411,12 +408,37 @@ function prepareData(xml, children) {
                 } else {
                     table = response.split("<table>");
                     searchString = "";
+					
+					realUsage = false;
+					
                     for (var i = 1; i < table.length; i++) {
                         tableContent = table[i].split("</div>")[0];
                         name = tableContent.split("h1")[1].split("\">")[2].split("</a>")[0];
                         gnid = tableContent.split("id=")[1].split("&amp;")[0];   //uuid is based on a button only shown to admin...
                         if (xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML != name) {
-                            searchString += gnid + "+";
+                            
+							//filter false friends - check if code/code space are used in lineage xml tag
+							//TODO: optimize - this can be time-consuming!
+							usageSearchURL = domain.split("srv")[0] + "srv/eng/xml_iso19139?id=" + gnid;
+							
+							readXML(usageSearchURL, true, function(err, response) {
+								if (err) { //do nothing
+								} else {
+									usageXML = response;
+									sources = usageXML.getElementsByTagNameNS(gmd, "source");
+									if (sources != null) {
+										for (var i = 0; i < sources.length; i++) {
+											if (code == sources[i].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0]
+											&& codeSpace == sources[i].getElementsByTagNameNS(gmd, "codeSpace")[0].getElementsByTagNameNS(gco, "CharacterString")[0])
+												realUsage = true;
+												break;
+										}
+									}
+								}
+							});
+							
+							if (realUsage)
+								searchString += gnid + "+";
                         }
                     }
                     searchString = searchString.slice(0, -1);//delete last +
@@ -662,18 +684,20 @@ function addLineageDS(xml, model, type) {
                     linDomain = domain.replace("uuid", "id");
                     orga = "", bbox = "";
                     ident = sString;
-                    readXML(linDomain + sString, true, function(err, response) {
-                        if (err) {
+					
+					if (sString != "") {
+						readXML(linDomain + sString, true, function(err, response) {
+							if (err) {
                             //do nothing
-                        } else {
-                            xmlResponse = response;
-                            try {
-                                if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0]))
-                                    orga = xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0].
+							} else {
+								xmlResponse = response;
+								try {
+									if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0]))
+										orga = xmlResponse.getElementsByTagNameNS(gmd, "CI_ResponsibleParty")[0].
                                             getElementsByTagNameNS(gmd, "organisationName")[0].
                                             getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
-                                if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "EX_GeographicBoundingBox")[0]))
-                                    bbox = xmlResponse.getElementsByTagNameNS(gmd, "westBoundLongitude")[0].
+									if (emptyChecker(xmlResponse.getElementsByTagNameNS(gmd, "EX_GeographicBoundingBox")[0]))
+										bbox = xmlResponse.getElementsByTagNameNS(gmd, "westBoundLongitude")[0].
                                             getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
                                             xmlResponse.getElementsByTagNameNS(gmd, "eastBoundLongitude")[0].
                                             getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
@@ -681,11 +705,11 @@ function addLineageDS(xml, model, type) {
                                             getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", " +
                                             xmlResponse.getElementsByTagNameNS(gmd, "northBoundLatitude")[0].
                                             getElementsByTagNameNS(gco, "Decimal")[0].innerHTML + ", ";
-                            } catch (e) {
-                            }
-                        }
-                    });
-                }
+								} catch (e) { }
+							}
+						});
+					}
+				}
             }); 
             
             jsonObject["dataset_data"][name] = {
@@ -710,20 +734,7 @@ function addLineageDS(xml, model, type) {
 /**
  * Method to show metaviz gui elements.
  */
-metaViz.displayMetaViz = function(data) {
-    if (dojo.byId("time4mapsMap") != null)
-        dojo.byId("time4mapsMap").style.display = "none";
-    if (dojo.byId("mapII") != null)
-        dojo.byId("mapII").style.display = "none";
-    if (dojo.byId("map") != null) {
-        var map = dojo.byId("map");
-        //delete children of map
-        if (map) {
-            while (map.hasChildNodes()) {
-                map.removeChild(map.lastChild);
-            }
-        }
-    }
+metaViz.displayMetaViz = function(data) { 
     try {
         var jsonObject = $.parseJSON(data);
     } catch (e) {

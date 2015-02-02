@@ -25,7 +25,7 @@ function initMetaViz(storeData) {
     mStore = new dojo.data.ItemFileReadStore({data: storeData});
     initData();
     initStylesAndTools();
-
+ 
     fillLineage();
     buildTooltips();
 
