@@ -82,7 +82,7 @@ function initData() {
             modelString = "Relation";
         }
         //displayed type, title, organisation, time+extent, description, intern type (eg. lineage_model), vector, time, info, viewing, store
-        if (model != null)
+        if (model != null && model.title != "")
             buildCardSet(modelString, model.title, model.organisation, "", "", model.type + "_model", false, false, false, false, false);
     }
 

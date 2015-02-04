@@ -214,7 +214,7 @@ function prepareData(xml, children) {
     try {
         modelTitle = emptyChecker(xml.getElementsByTagNameNS(gmd, "MD_Identifier")[0].getElementsByTagNameNS(gmd, "code")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
     } catch (e) {
-        modelTitle = xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
+        modelTitle = ""; //xml.getElementsByTagNameNS(gmd, "title")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML;
     }
     try {
         dateTime = emptyChecker(xml.getElementsByTagNameNS(gmd, "dateStamp")[0].getElementsByTagNameNS(gco, "Date")[0].innerHTML);
@@ -238,7 +238,7 @@ function prepareData(xml, children) {
     try {
         lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd, "lineage")[0].getElementsByTagNameNS(gmd, "statement")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
     } catch (e) {
-        lineageDescription = emptyChecker(xml.getElementsByTagNameNS(gmd, "lineage")[0].getElementsByTagNameNS(gmd, "description")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
+        lineageDescription = "No lineage information available."; //emptyChecker(xml.getElementsByTagNameNS(gmd, "lineage")[0].getElementsByTagNameNS(gmd, "description")[0].getElementsByTagNameNS(gco, "CharacterString")[0].innerHTML);
     }
     try {
         rationale = emptyChecker(
