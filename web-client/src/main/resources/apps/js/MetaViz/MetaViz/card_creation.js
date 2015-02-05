@@ -113,11 +113,11 @@ function generateIconset(is_model, is_vector, is_time_aware, normal_size) {
 
     if (!is_model) {
         if (is_vector === "true") {
-            html_icons += "<div class=\"icon_vector\" id=\"vector_" + num_vector + "\"></div>";
+            //html_icons += "<div class=\"icon_vector\" id=\"vector_" + num_vector + "\"></div>";
             num_vector++;
         }
         else {
-            html_icons += "<div class=\"icon_raster\" id=\"raster_" + num_raster + "\"></div>";
+            //html_icons += "<div class=\"icon_raster\" id=\"raster_" + num_raster + "\"></div>";
             num_raster++;
         }
     }

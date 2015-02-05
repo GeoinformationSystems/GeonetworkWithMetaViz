@@ -128,7 +128,7 @@ function initData() {
             var has_view = false;
             var has_save = false;
             var has_info = false;
-            if (ds.time != null && ds.time[0] != "") {
+            if (ds.time != null && ds.time[0] != "" && ds.time.indexOf("-") > 0) {
                 ds_time = ", <br />" + ds.time;
                 is_time = true;
             }

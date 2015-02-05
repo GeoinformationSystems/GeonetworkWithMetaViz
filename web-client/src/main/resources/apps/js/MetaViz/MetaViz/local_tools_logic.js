@@ -235,7 +235,7 @@ function focus_element(id, isInBool) { //isInBool determines if dataset is 100% 
     table.appendChild(createTableRow("Description: ", detail.description));
     table.appendChild(createTableRow("Organisation: ", detail.organisation));
     table.appendChild(createTableRow("Identifier: ", detail.paramName));  //identifier for usage and model-ds are same as in geonetwork, inputs aren't
-    table.appendChild(createTableRow("GeoNetwork-ID: ", detail.gnID));
+    if (detail.gnID != null && detail.gnID != "") table.appendChild(createTableRow("GeoNetwork-ID: ", detail.gnID));
     
     var a = document.createElement("a");
     var row = document.createElement("tr");
@@ -262,7 +262,7 @@ function focus_element(id, isInBool) { //isInBool determines if dataset is 100% 
     cell2.appendChild(a);
     row.appendChild(cell1);
     row.appendChild(cell2);
-    table.appendChild(row);
+    if (detail.gnID != null && detail.gnID != "")  table.appendChild(row);
 
     document.getElementById("tabMetaData").appendChild(table);
     showFeature(id);
